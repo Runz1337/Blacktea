@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Finder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1e1e1e;
+            color: white;
+            text-align: center;
+        }
+
+        #input-container {
+            width: 100%;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #output-container {
+            width: 100%;
+            height: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: yellow;
+        }
+
+        hr {
+            width: 80%;
+            border: 1px solid #888;
+        }
+
+        input {
+            width: 60%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            border: 2px solid #888;
+            background-color: #333;
+            color: white;
+            border-radius: 5px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: yellow;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="input-container">
+        <input type="text" id="wordInput" placeholder="Type a word..." autofocus>
+    </div>
+
+    <hr>
+
+    <div id="output-container">Waiting for input...</div>
+
+    <script>
+        const API_URL = "https://fly.wordfinderapi.com/api/search";
+        const outputContainer = document.getElementById("output-container");
+        const wordInput = document.getElementById("wordInput");
+
+        async function fetchWords(word) {
+            if (!word) {
+                outputContainer.innerHTML = "No words found";
+                return;
+            }
+
+            const params = new URLSearchParams({
+                contains: word,
+                length: 5,
+                word_sorting: "points",
+                group_by_length: "true",
+                page_size: 20,
+                dictionary: "wwf2",
+            });
+
+            try {
+                const response = await fetch(`${API_URL}?${params}`);
+                const data = await response.json();
+
+                const wordPages = data.word_pages || [];
+                const wordList = wordPages.length > 0 ? wordPages[0].word_list : [];
+
+                if (!wordList.length) {
+                    outputContainer.innerHTML = "No words found";
+                    return;
+                }
+
+                const words = wordList.slice(0, 5).map(w => w.word).join(", ");
+                outputContainer.innerHTML = `<span style="color: yellow;">${words}</span>`;
+
+            } catch (error) {
+                outputContainer.innerHTML = "Error fetching words";
+                console.error(error);
+            }
+        }
+
+        wordInput.addEventListener("input", (e) => {
+            fetchWords(e.target.value.trim());
+        });
+
+        async function checkClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                const words = text.trim().split(/\s+/);
+                const lastWord = words[words.length - 1];
+
+                if (lastWord !== wordInput.value) {
+                    wordInput.value = lastWord;
+                    fetchWords(lastWord);
+                }
+            } catch (error) {
+                console.warn("Clipboard access denied:", error);
+            }
+        }
+
+        setInterval(checkClipboard, 2000); // Check clipboard every 2 seconds
+
+    </script>
+
+</body>
+</html>
