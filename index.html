@@ -96,7 +96,7 @@
                     dictionary: "wwf2",
                 });
 
-                const url = CORS_PROXY + encodeURIComponent(`${BASE_URL}?${params}`);
+                const url = "${BASE_URL}?${params}"
 
                 try {
                     const response = await fetch(url);
