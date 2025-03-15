@@ -74,7 +74,7 @@
 
     <script>
         const BASE_URL = "https://fly.wordfinderapi.com/api/search";
-        const CORS_PROXY = "https://api.cors.lol/?url=";
+        const CORS_PROXY = "https://corsproxy.io/?";
         const outputContainer = document.getElementById("output-container");
         const wordInput = document.getElementById("wordInput");
 
@@ -83,6 +83,8 @@
                 outputContainer.innerHTML = "No words found";
                 return;
             }
+
+            word = word.toLowerCase(); // Convert input to lowercase
 
             for (let length of lengths) {
                 const params = new URLSearchParams({
@@ -137,7 +139,7 @@
             try {
                 const text = await navigator.clipboard.readText();
                 const words = text.replace(/\*/g, "").trim().split(/\s+/);
-                const lastWord = words[words.length - 1];
+                const lastWord = words[words.length - 1].toLowerCase(); // Convert to lowercase
 
                 if (lastWord !== wordInput.value) {
                     wordInput.value = lastWord;
