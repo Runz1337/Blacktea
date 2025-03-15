@@ -73,7 +73,8 @@
     <div id="output-container">No words yet...</div>
 
     <script>
-        const BASE_URL = "https://fly.wordfinderapi.com/api/search";
+        const PROXY_URL = "https://api.codetabs.com/v1/proxy?quest=";
+        const API_URL = "https://fly.wordfinderapi.com/api/search";
         const outputContainer = document.getElementById("output-container");
         const wordInput = document.getElementById("wordInput");
 
@@ -95,7 +96,7 @@
                     dictionary: "wwf2",
                 });
 
-                const url = `${BASE_URL}?${params}`;
+                const url = PROXY_URL + encodeURIComponent(`${API_URL}?${params}`);
 
                 try {
                     const response = await fetch(url);
